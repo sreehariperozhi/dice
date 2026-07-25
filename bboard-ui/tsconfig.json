@@ -15,7 +15,11 @@
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
     "esModuleInterop": false,
     "noEmit": true,
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "baseUrl": ".",
+    "paths": {
+      "@midnight-ntwrk/*": ["../node_modules/@midnight-ntwrk/*"]
+    }
   },
   "include": ["src", "eslint.config.mjs"]
 }

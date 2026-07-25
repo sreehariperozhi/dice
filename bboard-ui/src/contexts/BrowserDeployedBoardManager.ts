@@ -3,18 +3,18 @@
 
 import {
   DiceAPI,
+  type ContractAddress,
   type DiceCircuitKeys,
   type DiceProviders,
   type DeployedDiceAPI,
   DEFAULT_CONTRACT_ADDRESS,
 } from '../../../api/src/index.js';
-import { type ContractAddress } from '@midnight-ntwrk/midnight-js-protocol/compact-runtime';
 import {
   BehaviorSubject,
   type Observable,
 } from 'rxjs';
 import { type Logger } from 'pino';
-import { ConnectedAPI, type InitialAPI } from '@midnight-ntwrk/dapp-connector-api';
+import type { ConnectedAPI, InitialAPI } from '@midnight-ntwrk/dapp-connector-api';
 import { FetchZkConfigProvider } from '@midnight-ntwrk/midnight-js-fetch-zk-config-provider';
 import { httpClientProofProvider } from '@midnight-ntwrk/midnight-js-http-client-proof-provider';
 import { indexerPublicDataProvider } from '@midnight-ntwrk/midnight-js-indexer-public-data-provider';
@@ -152,8 +152,8 @@ const initializeProviders = async (logger: Logger): Promise<DiceProviders> => {
       balanceTx: async (tx: UnboundTransaction, ttl?: Date): Promise<FinalizedTransaction> => {
         try {
           logger.info({ tx, ttl }, 'Balancing transaction via wallet');
-          const serializedTx = Array.from(tx.serialize());
-          const received = await connectedAPI.balanceUnsealedTransaction(serializedTx.map(b => b.toString(16).padStart(2, '0')).join(''));
+          const serializedTx: number[] = Array.from(tx.serialize() as Uint8Array);
+          const received = await connectedAPI.balanceUnsealedTransaction(serializedTx.map((b: number) => b.toString(16).padStart(2, '0')).join(''));
           return Transaction.deserialize<SignatureEnabled, Proof, Binding>(
             'signature',
             'proof',
@@ -168,7 +168,7 @@ const initializeProviders = async (logger: Logger): Promise<DiceProviders> => {
     },
     midnightProvider: {
       submitTx: async (tx: FinalizedTransaction): Promise<TransactionId> => {
-        const serialized = Array.from(tx.serialize()).map(b => b.toString(16).padStart(2, '0')).join('');
+        const serialized = Array.from(tx.serialize() as Uint8Array).map((b: number) => b.toString(16).padStart(2, '0')).join('');
         await connectedAPI.submitTransaction(serialized);
         const txIdentifiers = tx.identifiers();
         const txId = txIdentifiers[0];
@@ -186,7 +186,7 @@ const getFirstCompatibleWallet = (): InitialAPI | undefined => {
       !!wallet &&
       typeof wallet === 'object' &&
       'apiVersion' in wallet &&
-      semver.satisfies(wallet.apiVersion, COMPATIBLE_CONNECTOR_API_VERSION),
+      semver.satisfies(wallet.apiVersion as string, COMPATIBLE_CONNECTOR_API_VERSION),
   );
 };
 
