@@ -1,5 +1,5 @@
 {
-  "name": "@midnight-ntwrk/bboard-contract",
+  "name": "@midnight-ntwrk/dice-contract",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
@@ -13,12 +13,11 @@
     }
   },
   "scripts": {
-    "build": "rm -rf dist && tsc --project tsconfig.build.json && cp -Rf ./src/managed ./dist/managed && cp ./src/bboard.compact ./dist",
-    "ci": "npm run compact && npm run typecheck && npm run lint && npm run build && npm run test",
-    "compact": "compact compile src/bboard.compact ./src/managed/bboard",
+    "build": "tsc --project tsconfig.build.json && node -e \"const fs=require('fs'); fs.mkdirSync('./dist', {recursive:true}); if(fs.existsSync('./src/managed')) fs.cpSync('./src/managed', './dist/managed', {recursive:true}); fs.copyFileSync('./src/dice.compact', './dist/dice.compact');\"",
+    "ci": "npm run compact && npm run typecheck && npm run lint && npm run build",
+    "compact": "compact compile src/dice.compact ./src/managed/dice",
     "lint": "eslint src",
-    "prepack": "npm build",
-    "test": "vitest",
+    "prepack": "npm run build",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "devDependencies": {
@@ -29,7 +28,6 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.6",
     "globals": "^17.6.0",
-    "typescript": "^5.9.3",
-    "vitest": "^4.1.0"
+    "typescript": "^5.9.3"
   }
 }

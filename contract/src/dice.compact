@@ -1,0 +1,92 @@
+// This file is part of Midnight DICE DApp.
+// SPDX-License-Identifier: Apache-2.0
+
+pragma language_version 0.23;
+
+import CompactStandardLibrary;
+
+export enum State {
+  IDLE,
+  COMMITTED,
+  ROLLED
+}
+
+export enum Result {
+  PENDING,
+  WON,
+  LOST
+}
+
+export ledger state: State;
+export ledger targetNumber: Uint<8>;
+export ledger playerCommitment: Bytes<32>;
+export ledger lastRoll: Uint<8>;
+export ledger lastResult: Result;
+export ledger roundCounter: Counter;
+export ledger owner: Bytes<32>;
+
+constructor() {
+  state = State.IDLE;
+  targetNumber = 50;
+  playerCommitment = pad(32, "");
+  lastRoll = 0;
+  lastResult = Result.PENDING;
+  roundCounter.increment(1);
+  owner = pad(32, "");
+}
+
+witness localSecretKey(): Bytes<32>;
+
+/**
+ * Privacy Model & Architectural Breakdown:
+ * 
+ * 1. Public Data:
+ *    - `state`: Current state of the game (IDLE, COMMITTED, ROLLED).
+ *    - `targetNumber`: Target threshold value for winning the dice roll (1-100).
+ *    - `playerCommitment`: Hash commitment generated from player's private entropy.
+ *    - `lastRoll`: Publicly disclosed outcome of the dice roll.
+ *    - `lastResult`: Game outcome (PENDING, WON, LOST).
+ *    - `roundCounter`: Monotonically increasing round counter.
+ *    - `owner`: Hashed public key of the active player.
+ *
+ * 2. Private Data:
+ *    - `localSecretKey`: Player's private secret key managed locally by wallet provider.
+ * 
+ * 3. Privacy Guarantees:
+ *    - The player's secret key and seed remain strictly within the local zero-knowledge witness.
+ *    - Off-chain zk-SNARK proofs prove validity of commitments and roll state transitions
+ *      without exposing user keys or raw private state to the public ledger.
+ */
+
+export circuit commitRoll(target: Uint<8>): [] {
+  assert(state == State.IDLE, "Game state must be IDLE to commit roll");
+  targetNumber = target;
+  owner = disclose(publicKey(localSecretKey(), roundCounter as Field as Bytes<32>));
+  playerCommitment = disclose(persistentHash<Vector<2, Bytes<32>>>([pad(32, "dice:commit:"), localSecretKey()]));
+  state = State.COMMITTED;
+}
+
+export circuit rollDice(outcome: Uint<8>): [] {
+  assert(state == State.COMMITTED, "Game state must be COMMITTED to roll dice");
+  assert(owner == publicKey(localSecretKey(), roundCounter as Field as Bytes<32>), "Caller is not the player who committed");
+  lastRoll = disclose(outcome);
+  if (outcome >= targetNumber) {
+    lastResult = Result.WON;
+  } else {
+    lastResult = Result.LOST;
+  }
+  state = State.ROLLED;
+}
+
+export circuit resetGame(): [] {
+  assert(state == State.ROLLED, "Game can only be reset after roll is completed");
+  assert(owner == publicKey(localSecretKey(), roundCounter as Field as Bytes<32>), "Caller is not the current game owner");
+  state = State.IDLE;
+  roundCounter.increment(1);
+  lastResult = Result.PENDING;
+  lastRoll = 0;
+}
+
+export circuit publicKey(sk: Bytes<32>, sequence: Bytes<32>): Bytes<32> {
+  return persistentHash<Vector<3, Bytes<32>>>([pad(32, "dice:pk:"), sequence, sk]);
+}
