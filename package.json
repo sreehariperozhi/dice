@@ -1,12 +1,12 @@
 {
-  "name": "@midnight-ntwrk/example-bboard",
+  "name": "@midnight-ntwrk/dice-dapp",
   "version": "0.1.0",
-  "author": "IOG",
+  "author": "Midnight DICE Team",
   "license": "MIT",
   "private": true,
   "type": "module",
   "engines": {
-    "node": ">=24.11.1"
+    "node": ">=22.0.0"
   },
   "workspaces": {
     "packages": [
@@ -15,6 +15,11 @@
       "api",
       "contract"
     ]
+  },
+  "scripts": {
+    "compact": "npm run --workspace=contract compact",
+    "build": "npm run --workspace=contract build && npm run --workspace=api build && npm run --workspace=bboard-cli build && npm run --workspace=bboard-ui build",
+    "deploy": "echo Deploying contract... Use target contract address placeholder: <YOUR_DEPLOYED_CONTRACT_ADDRESS>"
   },
   "dependencies": {
     "@midnight-ntwrk/dapp-connector-api": "4.0.1",
