@@ -1,13 +1,13 @@
 {
-  "name": "@midnight-ntwrk/bboard-ui",
+  "name": "@midnight-ntwrk/dice-ui",
   "version": "0.1.0",
   "author": "IOG",
   "license": "MIT",
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "rm -rf ./dist && tsc && vite build --mode preprod && cp -r ../contract/src/managed/bboard/keys ./dist/keys && cp -r ../contract/src/managed/bboard/zkir ./dist/zkir",
-    "build:preview": "rm -rf ./dist && tsc && vite build --mode preview && cp -r ../contract/src/managed/bboard/keys ./dist/keys && cp -r ../contract/src/managed/bboard/zkir ./dist/zkir",
+    "build": "tsc && vite build --mode preprod && node -e \"const fs=require('fs'); fs.mkdirSync('./dist', {recursive:true}); if(fs.existsSync('../contract/src/managed/dice/keys')) fs.cpSync('../contract/src/managed/dice/keys', './dist/keys', {recursive:true}); if(fs.existsSync('../contract/src/managed/dice/zkir')) fs.cpSync('../contract/src/managed/dice/zkir', './dist/zkir', {recursive:true});\"",
+    "build:preview": "tsc && vite build --mode preview && node -e \"const fs=require('fs'); fs.mkdirSync('./dist', {recursive:true}); if(fs.existsSync('../contract/src/managed/dice/keys')) fs.cpSync('../contract/src/managed/dice/keys', './dist/keys', {recursive:true}); if(fs.existsSync('../contract/src/managed/dice/zkir')) fs.cpSync('../contract/src/managed/dice/zkir', './dist/zkir', {recursive:true});\"",
     "build:start": "npm run build && npm run start",
     "build:start:preview": "npm run build:preview && npm run start",
     "ci": "npm run typecheck && npm run lint",
@@ -15,8 +15,7 @@
     "lint": "eslint ./src",
     "start": "http-server --port 0 ./dist",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "preview": "vite preview",
-    "prepack": "yarn build"
+    "preview": "vite preview"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
