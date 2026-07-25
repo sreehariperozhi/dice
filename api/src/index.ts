@@ -4,6 +4,7 @@
 import * as Dice from '../../contract/src/managed/dice/contract/index.js';
 
 import { type ContractAddress, convertFieldToBytes } from '@midnight-ntwrk/midnight-js-protocol/compact-runtime';
+export type { ContractAddress };
 import { type Logger } from 'pino';
 import {
   type DiceDerivedState,

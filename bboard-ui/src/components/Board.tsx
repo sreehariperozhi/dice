@@ -2,7 +2,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { type ContractAddress } from '@midnight-ntwrk/midnight-js-protocol/compact-runtime';
+import {
+  type ContractAddress,
+  type DiceDerivedState,
+  type DeployedDiceAPI,
+  DEFAULT_CONTRACT_ADDRESS,
+} from '../../../api/src/index.js';
 import {
   Backdrop,
   CircularProgress,
@@ -23,12 +28,6 @@ import ShieldIcon from '@mui/icons-material/Shield';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
-
-import {
-  type DiceDerivedState,
-  type DeployedDiceAPI,
-  DEFAULT_CONTRACT_ADDRESS,
-} from '../../../api/src/index.js';
 import { State, Result } from '../../../contract/src/index.js';
 import { useDeployedBoardContext } from '../hooks/index.js';
 import { type BoardDeployment } from '../contexts/index.js';
